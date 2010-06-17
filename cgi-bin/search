@@ -1,0 +1,485 @@
+#!/usr/bin/perl
+# This script takes in Boolean search string with one-level nested brackets
+# arun 07/21/2008
+use strict;
+
+use TextpressoLibrary;
+use lib TEXTPRESSO_LIB;
+use CGI;
+use POSIX;
+use TextpressoDisplayGlobals;
+use TextpressoDisplayTasks;
+use TextpressoDatabaseGlobals;
+use TextpressoDatabaseQuery;
+use TextpressoDatabaseSearch;
+use TextpressoComplexBoolean;
+use Time::HiRes qw(gettimeofday);
+
+my $query = new CGI;
+my $myself = $query->url(-absolute => 1);
+(my $base = $query->url(-base => 1)) =~ s/http\:\/\///g;
+
+my @cookies = ();
+foreach my $opt (keys % {(DB_DISPLAY_FIELDS)}, 'supplementals', 'epp', 'matches', 'textlinks', 'searchterm-highlighting', 'expand-sentences', 
+'search-options') {
+    if (defined($query->param("disp_$opt"))) {
+		push @cookies, $query->cookie( 
+				       -name => "opt_$opt",
+				       -value => $query->param("disp_$opt"),
+				       -domain => $base,
+				       -expires => '+365d');
+    }
+}
+
+if (defined($query->param('search'))) {
+    foreach my $t (keys %{(DB_SEARCH_TARGETS)}) {
+	my $s = join(" ", $query->param('target'));
+	my $v = ($s =~ /$t/) ? 1 : 0;
+	push @cookies, $query->cookie( 
+				       -name => "cookie-target-$t",
+				       -value => $v,
+				       -domain => $base,
+				       -expires => '+7d');
+    }
+    foreach my $e ("mtabstracts", "fuabstracts", "supplementals") {
+	push @cookies, $query->cookie( 
+				       -name => "cookie-exclude-$e",
+				       -value => (defined($query->param($e))) ? 1 : -1,
+				       -domain => $base,
+				       -expires => '+7d');
+    }
+}
+
+my $warncolor1 = (DSP_HIGHLIGHT_COLOR)->{warning};
+my $warncolor2 = (DSP_HIGHLIGHT_COLOR)->{offcolor};
+
+my $location = PrintTop($query, $myself, 1, @cookies);
+
+########################################################
+# Read in the HTML links up-front
+############### This is working #############################
+# regex, urls, and explanations are in link.templates
+
+my @regexps = ();
+my @urls = ();
+my @explanations = ();
+my $link_templates_page = TextpressoDisplayTasks::getwebpage(HTML_LINKTEMPLATES);
+my @lines = split(/\n/, $link_templates_page);
+for my $line (@lines) {
+    chomp ($line);
+    next if (!($line =~ /^http/));
+    (my $u, my $r, my $e) = split (/[ \t]+/, $line);
+    push @urls, $u;
+    push @regexps, $r;
+    push @explanations, $e;
+}
+########################################################
+
+# Process form here
+
+my $starttime = gettimeofday();
+my %results;
+
+foreach my $opt (keys % {(DB_DISPLAY_FIELDS)}, 'supplementals', 'epp', 'matches', 'textlinks', 'searchterm-highlighting', 'expand-sentences',
+		 'search-options') { # epp is 'entries per page'
+    if (!defined($query->param("disp_$opt"))) {
+	if (defined($query->cookie("opt_$opt"))) {
+	    $query->param(-name => "disp_$opt", -value => $query->cookie("opt_$opt"));
+	} elsif ($opt eq 'matches') {
+	    $query->param(-name => "disp_$opt", -value => 1);
+	} elsif ($opt eq 'epp') {	
+	    $query->param(-name => "disp_$opt", -value => 5);
+	} elsif ($opt eq 'search-options') {	
+	    my $off = HTML_OFF;
+	    $query->param(-name => "disp_$opt", -value => $off);
+	} else {
+	    my $on = HTML_ON;
+	    $query->param(-name => "disp_$opt", -value => $on);
+	}
+    }
+}
+
+my $error_searchmode;
+my $error_literature;
+my $stopwordstring = getstopwords(DB_STOPWORDS);
+my $foundstopwords = "";
+
+####added by RF, 0926, for synonyms search
+##added by RF, 07/08/08, for displaying keywords 
+##& synonyms in 'searchstring' textfield
+my $SearchKeywordsSyn = $query->param('SearchKeywordsSyn');
+##added by RF, 07/17/08, for displaying keywords & synonyms in each page 
+my $synListDisplay = $query->param('synListDisplay');
+
+my $searchstring = $query->param('searchstring');
+my $searchsynonyms = $query->param('searchsynonyms');
+####end added by RF
+####added by RF, 101508, for keep track of the searchsynonyms status 
+####at the start of the search, e.g. after click the search button
+my $search = $query->param('search');
+my $checksearchfilename = $query->param('checksearchfilename');
+
+# print "checksearchfilename: ".$checksearchfilename."<br />";
+
+
+if ($checksearchfilename eq "") {
+    my $tmpfilename;
+    ########## Lisa's Perl note ##############################
+    # makes a temp file and checks to see if that temp file name already exists,
+    # if so it tries another name.
+    do { $tmpfilename = tmpnam() } until (!-e DB_TMP . $tmpfilename);
+
+    
+    $checksearchfilename = DB_TMP . $tmpfilename;
+    system ("touch $checksearchfilename");
+    $query->param(-name => 'checksearchfilename', -value => $checksearchfilename);
+}
+####save the searchsynonyms status at the start of the search to file
+if($search){
+    open(OUT, ">>$checksearchfilename"); 
+    print OUT "$searchsynonyms\n";
+    close(OUT);
+}
+####end added by RF 
+#########################Lisa changed because my system adds slashes
+########### DB_TMP . $tmpfilename; -> DB_TMP . $tmpfilename;
+my $searchfilename = $query->param('searchfilename');
+if ($searchfilename eq "") {
+    my $tmpfilename;
+    do { $tmpfilename = tmpnam() } until (!-e DB_TMP . $tmpfilename);
+    $searchfilename = DB_TMP . $tmpfilename;
+    
+
+    
+    system ("touch $searchfilename");
+    $query->param(-name => 'searchfilename', -value => $searchfilename);
+}
+
+my $tqueryfilename = $query->param('tqueryfilename');
+
+if ($tqueryfilename eq "") {
+    my $tmpfilename;
+    do { $tmpfilename = tmpnam() } until (!-e DB_TMP . $tmpfilename);
+    $tqueryfilename = DB_TMP . $tmpfilename;
+    system ("touch $tqueryfilename");
+    $query->param(-name => 'tqueryfilename', -value => $tqueryfilename);
+}
+my $filteredfilename = $query->param('filteredfilename');
+if ($filteredfilename eq "") {
+    my $tmpfilename;
+    do { $tmpfilename = tmpnam() } until (!-e DB_TMP . $tmpfilename);
+    $filteredfilename = DB_TMP . $tmpfilename;
+    system ("touch $filteredfilename");
+    $query->param(-name => 'filteredfilename', -value => $filteredfilename);
+}
+# print "tqueryfilename = ";
+# print $tqueryfilename;
+# print "<br />";
+
+my $newsearch = 0;
+my $tpquery;
+my $lastSynonymsSearch = TextpressoDisplayTasks::getSearchSynonymsStatus($checksearchfilename);
+####added by Arun 
+if ($query->param('search')) {
+    if ($query->param('mode') =~ /(boolean|vector)/i) {	
+	$newsearch = 1;
+    } else {
+	$error_searchmode = $warncolor2;
+    }
+    $query->param(-name => 'page', -value => 1);
+}
+####test by RF, 1001
+my $temp_SearchKeywordsSyn;
+my $temp_synDisplay;
+%results = TextpressoComplexBoolean::ParseAndSearch($query, $stopwordstring,
+						    $newsearch, $searchfilename, $tqueryfilename,
+						    \$foundstopwords, $lastSynonymsSearch,
+						    \$temp_SearchKeywordsSyn, \$temp_synDisplay);
+
+if(defined($temp_SearchKeywordsSyn))
+{
+    $SearchKeywordsSyn = $temp_SearchKeywordsSyn;
+}
+if(defined($temp_synDisplay))
+{
+    $synListDisplay = $temp_synDisplay;
+}
+####end added by Arun
+
+if ($query->param('docidfilter')) {
+    foreach my $lit (keys %results) {
+	foreach my $id (keys % {$results{$lit}}) {
+	    if ($id !~ $query->param('docidfilter')) {
+		foreach my $tgt (keys % {$results{$lit}{$id}}) {
+		    delete $results{$lit}{$id}{$tgt};
+		}
+	    }
+	}
+    }
+}
+
+if ($newsearch == 1) {
+    $query->delete('filterstring');
+}
+my %filtered_results = ();
+foreach my $lit (keys %results) {
+  # print "$lit = ".$lit."<br />";
+    foreach my $id (keys % {$results{$lit}}) {
+      # print "$id = ".$id."<br />";
+	foreach my $tgt (keys % {$results{$lit}{$id}}) {
+	  # print "$tgt = ".$tgt."<br />";
+	    $filtered_results{$lit}{$id}{$tgt} = $results{$lit}{$id}{$tgt};
+	}
+    }
+}
+# print "%filtered_results =" . %filtered_results. "<br />";
+
+if ($query->param('filterstring') =~ /\w+/) {
+    Filter(\%results, \%filtered_results, $query->param('filterstring'));
+}
+
+## Additional filters
+if (($query->param('filterstring') =~ /\w+/) || 
+    ($query->param('mtabstracts') eq 'on') || 
+    ($query->param('fuabstracts') eq 'on') ||
+    ($query->param('supplementals') eq 'on') ||
+    ($query->param('authorfilter') =~ /\w+/) || 
+    ($query->param('journalfilter') =~ /\w+/) ||
+    ($query->param('yearfilter') =~ /\w+/) ) {
+    my $af = $query->param('authorfilter');
+    my $jf = $query->param('journalfilter');
+    my $yf = $query->param('yearfilter');
+    my $mta = $query->param('mtabstracts');
+    my $fua = $query->param('fuabstracts');
+    my $sup = $query->param('supplementals');
+    my $fs = $query->param('filterstring'); 
+    my $x = FilterMO(\%results, \%filtered_results, 
+		     $af, $jf, $yf, $mta, $fua, $sup, $fs);
+}
+saveresults(\%filtered_results, $filteredfilename);
+
+# print "Filtered file name: ".$filteredfilename."<br />";
+
+my %ltk = litkey(\%filtered_results); # this also `cleans' up empty entries of results
+my @ltks = keys % ltk;
+my $doctotal = scalar(@ltks);
+my $clstrtotal = 0;
+foreach my $l (@ltks) {
+    $clstrtotal += noss("@{$ltk{$l}}");
+}
+my $totalpages = int($doctotal/($query->param('disp_epp') || 10) + 1);
+if ($query->param('previouspage')) {
+    my $dp = ($query->param('page') == 1) ? 1 : $query->param('page') - 1;
+    $query->param(-name => 'page', -value => $dp);
+    $query->delete('previouspage');
+}
+
+if ($query->param('nextpage')) {
+    my $dp = ($query->param('page') >= $totalpages) ? $totalpages : $query->param('page') + 1;
+    $query->param(-name => 'page', -value => $dp);
+    $query->delete('nextpage');
+}
+
+my $extramessage = "";
+if($newsearch) { $extramessage = "Search time: " . int((gettimeofday() - $starttime)*1000)/1000 . " seconds." };
+# End of process form
+
+# Put form here
+print $query->start_form(-method => 'POST', -action => $myself);
+
+my $main = new TextpressoTable;
+$main->init;
+$main->addtablerow("");
+$main->addtablerow(CreateAdditionalTopInterface($query));
+####modified by RF, 0926, for synonyms search
+$main->addtablerow(CreateKeywordInterface($query, $SearchKeywordsSyn) . CreateKeywordSpecInterface($query).
+####end modifed by RF, 0926
+		   $query->br. $query->br.
+		   CreateCategoryInterface($query),
+                   $query->hidden('literature', @{(DB_LITERATURE_DEFAULTS)}));
+$main->addtablerow(CreateMoreOptionsInterface($query, $error_searchmode));
+$main->addtablerow($query->submit(-style => 'background:#ccdcff', -name => 'search', -value => 'Search!'));
+print $main->maketable($query, tablestyle => 'borderless', width => "100%");
+
+##########
+# Filter #
+##########
+if (%filtered_results) {
+    my $filter = new TextpressoTable;
+    $filter->init;
+    $filter->addtablerow("");
+    $filter->addtablerow(CreateFilterInterface($query));
+    print $filter->maketable($query, tablestyle => 'borderless', width => "100%");
+}
+
+# Print output here
+if ($error_searchmode ne "") {   
+    print $query->span({-style => "color:$warncolor1;"},
+		       "No other search mode except boolean and vector has been implemented yet.");	
+    print $query->br;
+}
+
+if (%filtered_results) {
+#   print "Inside if filtered results <br />";
+  
+    my @pagechoices = ();
+    for (my $i = 0; $i < $totalpages; $i++) {
+	push @pagechoices, $i + 1;
+    }
+    
+    print $query->hr;
+    my $disptbl = new TextpressoTable;
+    $disptbl->init;
+    $disptbl->addtablerow("");
+    $disptbl->addtablerow(CreateFlipPageInterface($query, 1 - ($query->param('page') == 1), 1,
+						  1 - ($query->param('page') == $totalpages), 1, @pagechoices),
+			  CreateDisplayOptions($query));
+####modified by RF, 0926, for synonyms search
+    $disptbl->addtablerow(CreateSynonymListDisplay($query, $lastSynonymsSearch, $synListDisplay));
+####end modified by RF
+    print $disptbl->maketable($query, tablestyle => 'borderless', width => "100%");
+    
+    if ($foundstopwords ne "") {
+	PrintStopwordWarning($query, $foundstopwords, $warncolor2);
+    }
+    if (!defined($tpquery)) {
+#       print "Making new tpquery <br />";
+	$tpquery = new TextpressoDatabaseQuery;
+	$tpquery->readfromfile($tqueryfilename);
+# 	print "reading from file: $tqueryfilename <br />";
+    }
+    my @highlightkeywords = makehighlightterms($tpquery, 'keyword') if ($query->param("disp_searchterm-highlighting") eq HTML_ON);
+    
+#     print "highlighted keywords: ";
+#     print @highlightkeywords;
+#     print "<br />";
+    
+    my %invlist = preparesortresults(\%ltk, $query->param('sort'));
+    my @sorted = (sort numerically keys % invlist); # after introduction of .sort file, 
+                                                    # all fields are sorted numerically here
+    my $resulttable = new TextpressoTable;
+    $resulttable->init;
+    $resulttable->addtablerow($query->span({-style => "font-weight:bold;"}, "$clstrtotal matches found in ") .
+			      $query->span({-style => "font-weight:bold;"}, "$doctotal documents. ") .
+			      $query->span({-style => "font-weight:lighter;"}, $extramessage));
+    (my $fn) = $filteredfilename =~ /.+\/(.+?)$/;
+    my $endnoteurl = "exportendnote?mode=allentries&id=$fn";
+    $query->param(-name => 'dodisplayquery', -value => 'on');
+    my $original = (HTML_MENU)->{Search};
+    (my $destination = $original) =~ s/\/search/\/printable/;
+    (my $printurl = $query->self_url) =~ s/$original/$destination/;
+    
+    # store the keywords in a temp file for use by exportxml
+    my $keywordfilename = "";
+    my $tmpfilename1;
+    do { $tmpfilename1 = tmpnam() } until (!-e DB_TMP . $tmpfilename1);
+    $keywordfilename = DB_TMP . $tmpfilename1;
+    open (OUT, ">$keywordfilename");
+    foreach (@highlightkeywords) {
+      print OUT "$_\n";
+    }
+    close OUT;
+
+    # store the categories in a temp file for use by exportxml
+    my $categoryfilename = "";
+    my $tmpfilename2;
+    do { $tmpfilename2 = tmpnam() } until (!-e DB_TMP . $tmpfilename2);
+    $categoryfilename = DB_TMP . $tmpfilename2;
+    open (OUT, ">$categoryfilename");
+    for (my $i = 0; $i < @{$tpquery->{type}}; $i++) {
+	if ($tpquery->type($i) eq 'category') {
+	    my $c = $tpquery->data($i);
+	    print OUT "$c\n";
+	}
+    }
+    close OUT;
+    $tmpfilename1 =~ s/.+\/(.+?)$/$1/;
+    $tmpfilename2 =~ s/.+\/(.+?)$/$1/;
+    my $xml_url = "exportxml?mode=allentries&tmpfile=$fn&keywordfilename=$tmpfilename1&categoryfilename=$tmpfilename2";
+    my %auxlinks = ();
+    $auxlinks{"all results in endnote"} = $endnoteurl;
+    $auxlinks{"all results in print version"} = $printurl;
+    $auxlinks{"all results in xml"} = $xml_url if ($doctotal < 1000);
+    if ($query->remote_host =~ /131\.215\.52\./) {
+	my $modification = DB_TMP . '/';
+	my $mod_fn = $filteredfilename;
+	$mod_fn =~ s/$modification//g;
+	$auxlinks{"Use these results for sentence saver"} 
+	= "sentence-saver.cgi?" . "fn=$mod_fn";
+    }
+    $resulttable->addtablerow(PrintGlobalLinkTable($query, %auxlinks));
+    
+    my $entrycounter = 0;
+    
+    foreach my $k (@sorted) {
+	foreach my $l (sort @{$invlist{$k}}) {
+	    $entrycounter++;
+	    next unless ($entrycounter > ($query->param('page') - 1)*$query->param('disp_epp'));
+	    next unless ($entrycounter <= $query->param('page')*$query->param('disp_epp'));
+	    my $entrytable = new TextpressoTable;
+	    $entrytable->init;
+	    my $score = 0;
+	    my %tgtlist = ();
+	    (my $lit, my $key) = split(/\ -\ /, $l);
+	    foreach my $ts (@{$ltk{$l}}) {
+		(my $tgt, my $sens) = split (/\#/, $ts);
+		$tgtlist{$tgt} = 1;
+		$score += noss($sens);
+	    }
+	    my @highlights = @highlightkeywords;
+	    if ($query->param("disp_searchterm-highlighting") eq HTML_ON) {
+		foreach my $tgt (keys % tgtlist) {
+		    @highlights = (@highlights, makehighlightterms($tpquery, 'category', $lit, $tgt, $key));
+		}
+	    } 
+	    my $rightcontent = $query->div({-align => "right"}, 
+					   $query->span({-style => "font-weight:bold;"}, "Score: ") . sprintf("%4.2f", $score));
+	    $entrytable->addtablerow($rightcontent);
+	    
+	    my $var = "(" . join("|", @highlights) . ")";
+	    my $success = makeentry($query, $entrytable, $l, \@{$ltk{$l}}, \%filtered_results, 
+				    \@urls, \@regexps, \@explanations, $var, $fn, $tmpfilename1, $tmpfilename2);
+	    if ($success) {
+		$resulttable->addtablerow($entrytable->maketable($query, tablestyle => 'borderless',
+								 DSP_HDRCOLOR => 'black', DSP_HDRSIZE => '75%',
+								 width => "100%"));
+	    }
+	}
+    }
+    
+    print $resulttable->maketable($query, 
+				  tablestyle => 'headerbackground', cellspacing => '0',
+				  cellpadding => '0', border => '1',
+				  DSP_HDRBCKGRND => '#696969', width => "100%");
+    print $query->div({-align => 'right'}, 
+		      CreateFlipPageInterface($query, 1 - ($query->param('page') == 1), 0,
+					      1 - ($query->param('page') == $totalpages), 1, @pagechoices));	
+} elsif ($newsearch == 1) {
+    print $query->span({-style => "font-weight:bold;color:$warncolor2;"}, "No matches found.");
+    print $query->p;
+}
+
+# End print output 
+
+print $query->hidden('searchfilename', $searchfilename);
+print $query->hidden('tqueryfilename', $tqueryfilename);
+print $query->hidden('filteredfilename', $filteredfilename);
+####added by RF, 0926, for synonyms search
+##added by RF, 07/08/08, for diaplaying keywords 
+##& synonyms in 'searchstring' textfield
+print $query->hidden('SearchKeywordsSyn', $SearchKeywordsSyn);
+##added by RF, 07/08/08, for displaying keywords & synonyms
+print $query->hidden('synListDisplay', $synListDisplay);
+print $query->hidden('searchstring', $searchstring);
+print $query->hidden('searchsynonyms', $searchsynonyms);
+####test by RF, 101508
+print $query->hidden('checksearchfilename', $checksearchfilename);
+####end test
+print $query->end_form;
+
+# End of form
+
+PrintBottom($query, "Total Page Buildup Time: " . int((gettimeofday() - $starttime)*1000)/1000 . " seconds.");
+
+sub numerically { $b <=> $a }
+sub alphabetically { $a cmp $b }

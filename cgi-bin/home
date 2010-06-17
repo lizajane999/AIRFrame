@@ -1,0 +1,90 @@
+#!/usr/bin/perl 
+use CGI::Carp qw(fatalsToBrowser);
+
+
+# CGI script provides homepage of Textpresso system
+#
+# Copyright (c) Hans-Michael Muller 2005.
+
+use strict;
+
+# Import the library path TEXTPRESSO_LIB from TextpressoLibrary.pm
+use TextpressoLibrary;
+
+use lib TEXTPRESSO_LIB;
+
+use CGI;
+use TextpressoDisplayTasks;
+use TextpressoDisplayGlobals;
+use TextpressoDatabaseGlobals;
+use TextpressoTable;
+
+my $query = new CGI;
+my $myself = $query->url(-absolute => 1);
+
+PrintTop($query, $myself, 1);
+
+print $query->br;
+my $maintable = new TextpressoTable;
+$maintable->init;
+my @content = ("Search for keywords or categories or both", "News & Messages");
+$maintable->addtablerow(@content);
+
+my $subtable1 = new TextpressoTable;
+$subtable1->init;
+$subtable1->addtablerow("");
+$subtable1->addtablerow($query->start_form(-method => 'POST', -action => 'search')
+			. CreateKeywordInterface($query) . CreateKeywordSpecInterface($query).
+			$query->br. $query->br.
+			CreateCategoryInterface($query),
+			$query->hidden('literature', @{(DB_LITERATURE_DEFAULTS)}));
+my $error_searchmode;
+$subtable1->addtablerow(CreateMoreOptionsInterface($query, $error_searchmode));
+$subtable1->addtablerow($query->submit(-name => 'search', -value => 'Search!')
+			. $query->font("&nbsp;")
+			. $query->reset('Undo current changes!'));
+
+$subtable1->addtablerow($query->end_form);
+
+$maintable->addtablerow( $subtable1->maketable($query, tablestyle => 'borderless'),
+			 WELCOME);
+
+print $maintable->maketable ($query,
+			     tablestyle => 'borderless-headerbackground',
+			     width => '100%');
+
+my $m1 = new TextpressoTable;
+$m1->init;
+$m1->addtablerow("Database Description");
+$m1->addtablerow("Currently, this site contains information about the following literatures and data types (data count in parenthesis):");
+my %count = ();
+foreach my $lit (keys % {(DB_LITERATURE)}) {
+    my $fn = DB_ROOT . (DB_LITERATURE)->{$lit} . DB_TEXT;
+    my @types = @{(DB_SEARCH_TARGETS_DEFAULTS)};
+    my @content = ();
+    foreach my $type (sort @types) {
+	opendir (DIR,"$fn/$type/");
+	my @fl = readdir (DIR);
+	closedir (DIR);
+	my $nu = @fl;
+	$nu -= 2;
+	$count{total} += $nu;
+	(my $nice = $type) =~ s/$fn\///; 
+	$count{$nice} += $nu;
+	push @content, "$nice ($nu)" if ($nu);
+    }
+    $m1->addtablerow($query->span({-style=>"text-decoration:underline"}, $lit) . ": " . join(", ", @content)) if (@content);
+}
+
+my @aux = ();
+foreach my $t (sort keys % count) {
+    push @aux, "$t : $count{$t}";
+}
+
+$m1->addtablerow($query->span({-style=>"text-decoration:underline"}, "Summary") . ": " . join(", ", @aux)) if (@aux);
+
+print $m1->maketable ($query,
+		      tablestyle => 'borderless-headerbackground',
+		      width => '100%');
+
+PrintBottom($query);

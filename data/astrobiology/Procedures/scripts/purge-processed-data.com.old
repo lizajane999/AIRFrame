@@ -1,0 +1,29 @@
+#!/bin/bash
+for i in ../../Data/annotations/abstract/semantic/*
+  do
+  rm -rf $i
+done
+for i in ../../Data/annotations/body/semantic/*
+  do
+  rm -rf $i
+done
+for i in ../../Data/annotations/title/semantic/*
+  do
+  rm -rf $i
+done
+for i in abstract author body title year
+  do
+  rm -rf ../../Data/indices/$i/keyword/*
+done
+for i in abstract body title
+  do
+  rm -rf ../../Data/indices/$i/semantic/*/*
+done
+for i in ../../Data/processedfiles/*/*
+  do
+  rm -rf $i
+done
+for i in ../../Data/xml/*/*
+  do
+  rm -rf $i
+done

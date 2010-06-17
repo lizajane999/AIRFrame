@@ -1,0 +1,14 @@
+// This file contains template for links to webpages of interest
+////
+//http://www.wormbase.org/db/seq/protein?name=###;class=protein	[A-Z]+-\d+\.?(\d+)?	WormBase-Protein
+//http://www.wormbase.org/db/misc/etree?name=###;class=Transgene	[a-z]+(Is|Ex)\d+	WormBase-Transgene
+//http://www.wormbase.org/db/get?name=###;class=Variation		[a-z]+\d\d+		WormBase-Variation
+// http://www.wormbase.org/db/get?name=###;class=Cell		[A-Za-z].+		WormBase-Cell
+//http://www.wormbase.org/db/misc/etree?name=###;class=Phenotype	[A-Z][a-z][a-z]		WormBase-Phenotype
+//http://www.wormbase.org/db/misc/etree?name=###;class=Strain	[A-Z]{2}[a-z]+		WormBase-Strain
+// http://www.wormbase.org/db/seq/clone?name=###;class=Clone	(yk|[A-Z])\w{3,}	WormBase-Clone
+//http://www.wormbase.org/db/gene/gene?name=###			(([a-z]{3,4}-[0-9]+\.?[A-Za-z0-9]*)|(WBGene\d{8}))	WormBase-Gene
+//http://www.wormbase.org/db/misc/etree?name=###;class=CDS	\w+\.\w+						WormBase-CDS
+/* Test for future implementation, add Wikipedia link to any word 10 chars long */
+http://en.wikipedia.org/wiki/Special:Search?search=###		[A-Za-z][A-Za-z]{9}						Wikipedia
+// http://www.m-w.com/cgi-bin/dictionary?book=Dictionary&va=###	[a-zA-Z]{12,}						Merriam-Webster

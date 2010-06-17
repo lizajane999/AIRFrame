@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+
+# CGI script provides the aboutpage of Textpresso system
+#
+# Copyright (c) Hans-Michael Muller 2005.
+
+use strict;
+use TextpressoLibrary;
+use lib TEXTPRESSO_LIB;
+use CGI;
+use TextpressoDisplayTasks;
+use TextpressoDisplayGlobals;
+
+my $query = new CGI;
+my $myself = $query->url(-absolute => 1);
+
+PrintTop($query, $myself, 1);
+my $subtabl = new TextpressoTable;
+$subtabl->init;
+$subtabl->addtablerow("");
+my $newtext = "AIRFrame is an integrative knowledge framework for the astrobiology community. ";
+$newtext .= "It is under active development by Rich Gazan and Lisa Miller of the ";
+$newtext .= $query->a({href=>"http://www.ifa.hawaii.edu/UHNAI/", target=>"_blank"}, "UH-NASA Astrobiology Institute");
+$newtext .= " team at the " .  $query->a({href=>"http://manoa.hawaii.edu/", target=>"_blank"}, "University of Hawaii at Manoa.");
+$newtext .= " We are in the process of adapting the Textpresso text-mining system to the multi-disciplinary field of astrobiology.";
+$newtext .= " This project is supported by the ";
+$newtext .= $query->a({href=>"http://www.nasa.gov/", target=>"_blank"}, "National Aeronautics and Space Administration")." through the ";
+$newtext .= $query->a({href=>"http://astrobiology.nasa.gov/nai/", target=>"_blank"}, "NASA Astrobiology Institute");
+$newtext .= " under Cooperative Agreement No. NNA08DA77A issued through the Office of Space Science.";
+
+$subtabl->addtablerow($newtext);
+print $subtabl->maketable($query, tablestyle => 'borderless', width => "60%");
+#print $query->br;
+
+my $subtable2 = new TextpressoTable;
+$subtable2->init;
+$subtable2->addtablerow("");
+my $text = "Textpresso was orginally developed as an information extracting and processing package for biological literature by Hans-Michael Muller, Eimear Kenny and Paul W. Sternberg, ";
+$text .= "with contributions from Juancarlos Chan and David Chen. ";
+$text .= "The newest stable version (officially known as Textpresso 2.0) was developed by Hans-Michael Muller with contributions from Arun Rangarajan and Tracy K. Teal. ";
+$text .= "Original Textpresso is part of " . $query->a({href=>"http://www.wormbase.org", target=>"_blank"}, "WormBase");
+$text .= " at the " . $query->a({href=>"http://www.caltech.edu/", target=>"_blank"}, "California Institute of Technology");
+$text .= ", California.";
+$text .= " Textpresso is supported by a grant from the ";
+$text .= $query->a({href=>"http://www.genome.gov", target=>"_blank"}, "National Human Genome Research Institute");
+$text .= " at the US National Institutes of Health # HG004090. ";
+$subtable2->addtablerow($text);
+print $subtable2->maketable($query, tablestyle => 'borderless', width => "60%");
+print $query->br;
+
+PrintBottom($query);

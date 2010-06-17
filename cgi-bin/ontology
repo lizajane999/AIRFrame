@@ -1,0 +1,231 @@
+#!/usr/bin/perl
+
+# CGI script provides ontology page of Textpresso system
+#
+# Copyright (c) Hans-Michael Muller 2005.
+
+use strict;
+
+# Import the library path TEXTPRESSO_LIB from TextpressoLibrary.pm
+use TextpressoLibrary;
+
+use lib TEXTPRESSO_LIB;
+
+use CGI;
+use TextpressoDisplayTasks;
+use TextpressoDisplayGlobals;
+use TextpressoGeneralTasks;
+use TextpressoGeneralGlobals;
+
+my $query = new CGI;
+my $myself = $query->url(-absolute => 1);
+my $location = PrintTop($query, $myself, 1);
+
+# Put form here, and interlace output
+
+print $query->start_form(-method => 'POST', -action => $myself);
+
+my $main = new TextpressoTable;
+$main->init;
+$main->addtablerow("Not Yet Implemented");
+print $main->maketable($query, 
+		       tablestyle => 'borderless-headerbackground', 
+		       DSP_HDR_SIZE => 3,
+		       width => "100%");
+####end added by RF
+print $query->end_form;
+# End of form                
+
+PrintBottom($query);
+#################### -------------- NEEDS COMPACT LEXICA--------------------- ################
+# # $main->addtablerow("Ontology Browser");
+# $main->addtablerow('This browser tests a keyword against all entries in the lexicon. ');
+# $main->addtablerow('Type in one phrase, which can consist of several words: ');
+# $main->addtablerow($query->textfield(-name => 'simplestring', -size => 50, -maxlength => 255));
+# $main->addtablerow($query->submit(-name => 'search', -value => 'Test!'));
+# 
+# my $ael = (GE_DELIMITERS)->{annotation_entry_left};
+# my $aer = (GE_DELIMITERS)->{annotation_entry_right};
+# my $del = (GE_DELIMITERS)->{lexicon}; 
+# 
+# if (($query->param('search')) || $query->param("simplestring")) {
+#     use TextpressoGeneralTasks;
+#     use TextpressoDatabaseGlobals;
+#     use TextpressoDatabaseCategories;
+#     use File::Basename;
+#     
+#     my %output = ();
+#     my $search_string = ReplaceSpecChar($query->param("simplestring"));
+#     my %output = ();
+#     foreach my $lit (keys % { (DB_LITERATURE) }) {
+# 	my $lexdir = DB_ROOT . (DB_LITERATURE)->{$lit} . (DB_SUPPLEMENTAL)->{compact_lexicon};
+# 	my $dirin = $lexdir;
+# 	my @lexfiles = <$dirin/*>;
+# 	
+# 	foreach my $file (@lexfiles) {
+# 	    (my $fname, my $fdir, my $fsuf) = fileparse($file, qr{\.\d+-gram});
+# 	    $fsuf =~ s/^\.(\d+)-gram/$1/;
+# 	    open (IN, "<$file");
+# 	    while (<IN>) {
+# 		/(.*)\t(.*)\t(.*)/;
+# 		my $rep = $1;
+# 		my $var = $2;
+# 		my $gr = $3;
+# 		$var =~ s/(.*),\s$/$1/;
+# 		if ($rep =~ /$search_string/i) {
+# 		    my $rep = InverseReplaceSpecChar($rep);
+# 		    my $var = InverseReplaceSpecChar($var);
+# 		    $rep =~ s/\\//g;
+# 		    $var =~ s/\\//g;
+# 		    $output{$lit}{$fname}{$rep}{$var}{$gr} = 1;
+# 		}
+# 	    }
+# 	}
+#     }
+# 
+#     if (%output) {
+# 	my $rslt = new TextpressoTable;
+# 	$rslt->init;
+# 	$rslt->addtablerow("Literature", "Term", "Variants", "Category", "Attributes");
+# 	foreach my $l (sort keys % output) {
+# 	    foreach my $c (sort keys % { $output{$l} }) {
+# 		foreach my $t (sort keys % { $output{$l}{$c} }) {
+# 		    foreach my $v (sort keys % { $output{$l}{$c}{$t} }) {
+# 			foreach my $a (sort keys % { $output{$l}{$c}{$t}{$v} }) {
+# 			    my $c1;
+# 			    foreach (keys %{(DB_CATEGORIES)}) {
+# 				if (DB_CATEGORIES->{$_} eq $c) {
+# 				    $c1 = $_;
+# 				    last;
+# 				}
+# 			    }
+# 			    my $l1 = $l;
+# 			    $l1 =~ s/ //g;
+# 			    $rslt->addtablerow($l1, $t, $v, $c1, $a);
+# 			}
+# 		    }
+# 		}
+# 	    }
+# 	}
+# 	$main->addtablerow($rslt->maketable($query, width => "100%",
+# 					    DSP_HDRCOLOR => 'black', DSP_HDRSIZE => 2));
+#     } else {
+# 	my $warncolor = (DSP_HIGHLIGHT_COLOR)->{offcolor};
+# 	$main->addtablerow($query->span({-style => "font-weight:bold;color:$warncolor;"}, "No matches found."));
+#     }
+#     
+# }
+# 
+# print $main->maketable($query, 
+# 		       tablestyle => 'borderless-headerbackground', 
+# 		       DSP_HDR_SIZE => 3,
+# 		       width => "100%");
+# 
+# my $main2 = new TextpressoTable;
+# $main2->init;
+# $main2->addtablerow("Category Lists");
+# $main2->addtablerow('Choose category from popup menu whose lexicon you want to have displayed: ');
+# use TextpressoDatabaseCategories;
+# my @categories = sort (keys %{(DB_CATEGORIES)});
+# $main2->addtablerow($query->popup_menu(-name => 'category',
+# 				       -values => [sort @categories]));
+# $main2->addtablerow($query->submit(-name => 'display', -value => 'Display!'));
+# if (($query->param('display'))) {
+#     use TextpressoGeneralTasks;
+#     use TextpressoGeneralGlobals;
+#     use TextpressoDatabaseGlobals;
+#     
+#     my $rslt = new TextpressoTable;
+#     $rslt->init;
+#     $rslt->addtablerow("Literature(s)", "<center>Term<\/center>", "<center>Variants<\/center>", "Attributes of Term");
+#     
+#     my $cat = $query->param('category');
+#     my $category = DB_CATEGORIES->{$cat};
+#     
+#     foreach my $lit (keys % { (DB_LITERATURE) }) {
+# 	my $lex_dir = DB_ROOT . (DB_LITERATURE)->{$lit} . (DB_SUPPLEMENTAL)->{compact_lexicon};
+# 	my $files = $lex_dir . '/' . $category;
+# 	my @lex_files = <$files*>;
+# 	
+# 	foreach my $file (@lex_files) {
+# 	    (my $fname, my $fdir, my $fsuf) = fileparse($file, qr{\.\d+-gram});
+# 	    $fsuf =~ s/^\.(\d+)-gram/$1/;
+# 	    open (IN, "<$file");
+# 	    my $inline = '';
+# 	    while (my $line = <IN>) {
+# 		$inline .= $line;
+# 	    }
+# 	    close IN;
+# 	    my @entries = split (/\n/, $inline);
+# 	    foreach my $entry (@entries) {
+# 		my @items = split (/\t/, $entry);
+# 		my $key = InverseReplaceSpecChar(shift(@items));
+# 		$key =~ s/ \\(.) /$1/g;
+# 		$key = "<center>$key<\/center>";
+# 		my $variants = InverseReplaceSpecChar(shift(@items));
+# 		$variants =~ s/\\//g;
+# 		my $attr = shift(@items);
+# 		$variants =~ s/\,\s$//;
+# 		$rslt->addtablerow($lit, $key, $variants, $attr);
+# 	    }
+# 	    close (IN);
+# 	}
+#     }
+#     $main2->addtablerow($rslt->maketable($query, width => "100%",
+# 					 DSP_HDRCOLOR => 'black', DSP_HDRSIZE => 2));
+#     
+# }
+# print $main2->maketable($query, 
+# 			tablestyle => 'borderless-headerbackground', 
+# 			DSP_HDR_SIZE => 3,
+# 			width => "100%");
+# 
+# 
+# ####added by RF, 101108 for displaying synonyms list
+# my $synList = HTML_ROOT . HTML_LIT_PATH . SYN_LIST;
+# ####end test
+# 
+# my $synList_All = $synList . 'c_elegansGeneSynList';
+# my $synList_Aa = $synList . 'Aa';
+# my $synList_Bb = $synList . 'Bb';
+# my $synList_Cc = $synList . 'Cc';
+# my $synList_Dd = $synList . 'Dd';
+# my $synList_Ee = $synList . 'Ee';
+# my $synList_Ff = $synList . 'Ff';
+# my $synList_Gg = $synList . 'Gg';
+# my $synList_Hh = $synList . 'Hh';
+# my $synList_Ii = $synList . 'Ii';
+# my $synList_Jj = $synList . 'Jj';
+# my $synList_Kk = $synList . 'Kk';
+# my $synList_Ll = $synList . 'Ll';
+# my $synList_Mm = $synList . 'Mm';
+# my $synList_Nn = $synList . 'Nn';
+# my $synList_Oo = $synList . 'Oo';
+# my $synList_Pp = $synList . 'Pp';
+# my $synList_Qq = $synList . 'Qq';
+# my $synList_Rr = $synList . 'Rr';
+# my $synList_Ss = $synList . 'Ss';
+# my $synList_Tt = $synList . 'Tt';
+# my $synList_Uu = $synList . 'Uu';
+# my $synList_Vv = $synList . 'Vv';
+# my $synList_Ww = $synList . 'Ww';
+# my $synList_Xx = $synList . 'Xx';
+# my $synList_Yy = $synList . 'Yy';
+# my $synList_Zz = $synList . 'Zz';
+# my $synList_09 = $synList . '09';
+#    
+# my $main_syn = new TextpressoTable;
+# $main_syn->init;
+# $main_syn->addtablerow("Synonym List");
+# 
+# $main_syn->addtablerow(" <a href=$synList_All>All</a>  <a href=$synList_Aa>Aa</a>  <a href=$synList_Bb>Bb</a> <a href=$synList_Cc>Cc</a>  <a href=$synList_Dd>Dd</a>  <a href=$synList_Ee>Ee</a>  <a href=$synList_Ff>Ff</a>  <a href=$synList_Gg>Gg</a>  <a href=$synList_Hh>Hh</a>  <a href=$synList_Ii>Ii</a>  <a href=$synList_Jj>Jj</a>  <a href=$synList_Kk>Kk</a>  <a href=$synList_Ll>Ll</a>  <a href=$synList_Mm>Mm</a>  <a href=$synList_Nn>Nn</a>  <a href=$synList_Oo>Oo</a>  <a href=$synList_Pp>Pp</a>  <a href=$synList_Qq>Qq</a>  <a href=$synList_Rr>Rr</a>  <a href=$synList_Ss>Ss</a>  <a href=$synList_Tt>Tt</a>  <a href=$synList_Uu>Uu</a>  <a href=$synList_Vv>Vv</a>  <a href=$synList_Ww>Ww</a>  <a href=$synList_Xx>Xx</a>  <a href=$synList_Yy>Yy</a>  <a href=$synList_Zz>Zz</a>  <a href=$synList_09>0-9</a>"); 
+# 
+# print $main_syn->maketable($query,
+# 			   tablestyle => 'borderless-headerbackground',
+# 			   DSP_HDR_SIZE => 3,
+# 			   width => "100%");
+# ####end added by RF
+# print $query->end_form;
+# # End of form                
+# 
+# PrintBottom($query);

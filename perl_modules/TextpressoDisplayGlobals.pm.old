@@ -1,0 +1,60 @@
+package TextpressoDisplayGlobals;
+
+# Package provides global constants for all
+# Webdisplay related matters of the Textpresso
+# system.
+#
+# (c) 2007 Hans-Michael Muller, Caltech, Pasadena.
+
+use strict;
+require Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT = qw(DSP_BGCOLOR DSP_TXTCOLOR DSP_LNKCOLOR DSP_AUTHOR DSP_HDRBCKGRND DSP_HDRFACE DSP_HDRSIZE DSP_HDRCOLOR DSP_TXTFACE DSP_TXTSIZE DSP_HIGHLIGHT_COLOR HTML_ROOT HTML_LINKTEMPLATES HTML_MENU HTML_LOGO HTML_NONE HTML_ON HTML_OFF);
+
+use constant DSP_BGCOLOR => 'white';
+use constant DSP_TXTCOLOR => 'black';
+use constant DSP_LNKCOLOR => '#484d4d';
+use constant DSP_AUTHOR => 'Hans-Michael Muller';
+use constant DSP_HDRBCKGRND => '#444488';
+use constant DSP_HDRFACE => 'Verdana,sans-serif';
+use constant DSP_HDRSIZE => 'medium';
+use constant DSP_HDRCOLOR => 'white';
+use constant DSP_TXTFACE => 'verdana, helvetica';
+use constant DSP_TXTSIZE => 'small';
+use constant DSP_HIGHLIGHT_COLOR => {1 => '#ccccff',
+				     2 => '#ccffcc',
+				     3 => '#ffcccc',
+				     4 => '#cccccc',
+				     5 => '#ccffff',
+				     6 => '#ffccff',
+				     7 => '#ffffcc',
+				     menutexton => '#00008b',
+				     menutextoff => '#ffffff',
+				     bgwhite => '#ffffff',
+				     oncolor => '#006400',
+				     offcolor => '#8b0000',
+				     texthighlight => '#5000A0',
+				     warning => '#ff0000'};
+
+# The following constants need adjustments for each implementation
+use constant HTML_ROOT => 'http://localhost/';
+
+use constant HTML_LINKTEMPLATES => '/home/lizajane999/public_html/textpresso/misc/link.templates';
+
+use constant HTML_MENU => { 'Home' => 'cgi-bin/textpresso/home',
+			    'Search' => 'cgi-bin/textpresso/search',
+			    'Categories/Ontology' => 'cgi-bin/textpresso/ontology',
+			    'User Guide' => 'cgi-bin/textpresso/user_guide',
+			    'Feedback' => 'cgi-bin/textpresso/feedback',
+			    'Downloads' => 'cgi-bin/textpresso/downloads',
+			    'About Textpresso' => 'cgi-bin/textpresso/about_textpresso',
+			    'Copyright' => 'cgi-bin/textpresso/copyright',
+			    'Query Language' => 'cgi-bin/textpresso/tql'};
+
+use constant HTML_LOGO => 'textpresso/gif/textpresso_new.jpg';
+# end constants that need adjustments
+
+use constant HTML_NONE => 'none';
+use constant HTML_ON => 'on';
+use constant HTML_OFF => 'off';
+1;

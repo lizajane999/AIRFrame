@@ -1,0 +1,14 @@
+README file for airframe/textpresso
+
+When installing to a new machine/location file locations must be changed in:
+perl_modules/TextpressoDatabaseGlobals.pm
+perl_modules/TextpressoDisplayGlobals.pm
+perl_modules/TextpressoSystemGlobals.pm
+cgi-bin/TextpressoLibrary.pm
+htdocs/textpresso.html (homepage file)
+data/astrobiology/Procedures/ProcessSourceFiles.pl
+
+The symlinks in /htdocs/tdb/astrobiology have to be set to point correctly
+
+htdocs/temp directory needs to be made if it doesn't exist
+

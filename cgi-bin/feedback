@@ -1,0 +1,81 @@
+#!/usr/bin/perl
+
+# CGI script provides feedback page of Textpresso system
+#
+# Copyright (c) Hans-Michael Muller 2005.
+# Modified by Lisa Miller 2010
+use strict;
+
+# Import the library path TEXTPRESSO_LIB from TextpressoLibrary.pm
+use TextpressoLibrary;
+
+use lib TEXTPRESSO_LIB;
+
+use CGI;
+use TextpressoDisplayTasks;
+use TextpressoDisplayGlobals;
+
+my $query = new CGI;
+my $myself = $query->url(-absolute => 1);
+my $location = PrintTop($query, $myself, 1);
+
+# Process form here  
+
+my $error = "";
+my $nm = $query->param('name');
+my $em = $query->param('email');
+my $su = $query->param('subject');
+my $ms = $query->param('message');
+
+if ($query->param('submit')) {
+    if ($query->param('picpass') =~ /marvelous/i) {
+	if ($em ne "") {
+	    if ($ms ne "") {
+		system("echo \"Subject: $su\nFrom: $nm ($em)\nMessage:\n$ms\" | mail -s 'Feedback AIRFrame-Textpresso' ljmiller\@hawaii.edu");
+		$error = "success";
+	    } else {
+		$error .= "- no message included -";
+	    }
+	} else {
+	    $error .= "- no e-mail address specified -";
+	}
+	if ($error ne "success") {
+	    print $query->span({-style => "color:red"}, "Error: $error");
+	} else {
+	    print $query->span({-style => "color:green"}, "Success! Message sent. Thank you.");
+	}
+    } else {
+	print $query->span({-style => "color:red"}, "Error: Wrong word from picture entered.");
+    }
+}
+
+# End of process form 
+
+# Put form here                                                                                                                                                                                                 
+
+if ($error ne "success") {
+    print $query->start_form(-method => 'POST', -action => $myself);
+
+    my $main = new TextpressoTable;
+    $main->init;
+    $main->addtablerow("");
+    $main->addtablerow("Name: " . $query->textfield(-name => 'name', -size => 50, -maxlength => 255));
+    $main->addtablerow("Name: " . $query->textfield(-name => 'name', -size => 50, -maxlength => 255));
+    $main->addtablerow("E-mail: " . $query->textfield(-name => 'email', -size => 50, -maxlength => 255));
+    $main->addtablerow("Subject: " . $query->textfield(-name => 'subject', -size => 50, -maxlength => 255));
+    $main->addtablerow("Message:");
+    $main->addtablerow($query->textarea(-name => 'message',
+					-rows => '20',
+					-columns => '80'));
+    $main->addtablerow($query->img({-src => HTML_ROOT . HTML_PICPASS,
+				    -border => 1}));
+    $main->addtablerow(" Type in the word in the picture: " . $query->textfield(-name => 'picpass', -size => 50, -maxlength => 255));
+    $main->addtablerow($query->submit(-name => 'submit',
+				      -value => 'Submit!'));
+    print $main->maketable($query, tablestyle => 'borderless', width => "40%");
+    print $query->end_form;
+}
+
+# End of form                         
+
+PrintBottom($query);

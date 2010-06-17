@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+
+# CGI script tests the existence of documents in the Textpresso system
+#
+# Copyright (c) Hans-Michael Muller 2007.
+
+use strict;
+
+# Import the library path TEXTPRESSO_LIB from TextpressoLibrary.pm
+use TextpressoLibrary;
+
+use lib TEXTPRESSO_LIB;
+
+use CGI;
+use TextpressoDisplayTasks;
+use TextpressoDisplayGlobals;
+use TextpressoDatabaseGlobals;
+
+my $query = new CGI;
+my $myself = $query->url(-absolute => 1);
+my $location = PrintTop($query, $myself, 1);
+
+# Put form here, and interlace output
+
+print $query->start_form(-method => 'POST', -action => $myself);
+
+my $main = new TextpressoTable;
+$main->init;
+$main->addtablerow("Document Finder");
+$main->addtablerow('This script tests the existence of a document in the corpus. ');
+$main->addtablerow('Type in document id (partial matches allowed): ');
+$main->addtablerow($query->textfield(-name => 'docstring', -size => 50, -maxlength => 255));
+$main->addtablerow($query->submit(-name => 'test', -value => 'Test!'));
+
+if (($query->param('test')) || $query->param("docstring")) {
+    use File::Basename;
+    my %output = ();
+    my $search_string = $query->param("docstring");
+    my %output = ();
+    foreach my $lit (keys % { (DB_LITERATURE) }) {
+	foreach my $field (keys % { (DB_SEARCH_TARGETS) }) {
+	    my $dir = DB_ROOT . '/' . (DB_LITERATURE)->{$lit} . '/' .
+		DB_TEXT . '/' . (DB_SEARCH_TARGETS)->{$field} . '/';
+	    my @files = <$dir/*$search_string*>;
+	    foreach my $file (@files) {
+                my $aux = $file =~ s/$dir\///g;
+		push @{$output{$lit}{$file}}, $field;
+	    }
+	}
+    }    
+    if (%output) {
+	foreach my $lit (keys % output){
+	    $main->addtablerow("Literature: $lit");
+	    my $rslt = new TextpressoTable;
+	    $rslt->init;
+	    $rslt->addtablerow("Literature", "Doc ID", "Available Searchable Fields");
+	    foreach my $file (sort keys % { $output{$lit}}) {
+		$rslt->addtablerow($lit, $file, join(", ", sort @{ $output{$lit}{$file} }));
+	    }
+	    $main->addtablerow($rslt->maketable($query, width => "100%",
+						DSP_HDRCOLOR => 'black', DSP_HDRSIZE => 2));
+	}
+    } else {
+	my $warncolor = (DSP_HIGHLIGHT_COLOR)->{offcolor};
+	$main->addtablerow($query->span({-style => "font-weight:bold;color:$warncolor;"}, "No matches found."));
+    }
+}
+
+print $main->maketable($query, 
+		       tablestyle => 'borderless-headerbackground', 
+		       DSP_HDR_SIZE => 3,
+		       width => "100%");
+
+print $query->end_form;
+# End of form                
+
+PrintBottom($query);

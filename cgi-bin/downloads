@@ -1,0 +1,63 @@
+#!/usr/bin/perl
+
+# CGI script provides download page of Textpresso system
+#
+# Copyright (c) Hans-Michael Muller 2005.
+
+use strict;
+
+# Import the library path TEXTPRESSO_LIB from TextpressoLibrary.pm
+use TextpressoLibrary;
+
+use lib TEXTPRESSO_LIB;
+
+use CGI;
+use TextpressoDisplayTasks;
+use TextpressoDisplayGlobals;
+
+my $query = new CGI;
+my $myself = $query->url(-absolute => 1);
+
+PrintTop($query, $myself, 1);
+
+my $subtable2 = new TextpressoTable;
+$subtable2->init;
+$subtable2->addtablerow("");
+my $text = $query->p;
+$text .= $query->b("Welcome to the <i>Textpresso 2.0</i> download page. ");
+$text .= $query->p;
+$text .= "This is version 2.0.0, release date June 10<sup>th</sup>, 2007. ";
+$text .= "The software is tested to run on RedHat Enterprise Linux 4 and OpenSUSE Linux 10.2, ";
+$text .= "and is likely to run on other Linux-based operating systems as well." ;
+$subtable2->addtablerow($text);
+$text = "&copy; 2005-2009 California Institute of Technology. ";
+$text .= "For copyright and licensing information read the documentation, ";
+$text .= "which is available in the tarzipped file or ";
+$text .= $query->a({href=>"http://www.textpresso.org/celegans/misc/Textpresso-2.0-documentation/", target=>"_blank"}, "online");
+$text .= ".";
+$text .= $query->hr;
+$subtable2->addtablerow($text);
+$text = $query->b("MD5 digest and Download:");
+$text .= $query->p;
+$text .= "1c31c9ca684d478d45aec53aa7e6937d ";
+$text .= $query->a({href=>"http://www.textpresso.org/celegans/misc/textpressopackage-2.0.0.tgz"}, "textpressopackage-2.0.0.tgz");
+$text .= $query->hr;
+$subtable2->addtablerow($text);
+$text = $query->b("First steps:");
+$text .= $query->p;
+$text .= $query->start_ul;
+$text .= $query->li("Unpack the zipped textpressopackage-2.0.0.tgz with the command" .
+		    "<blockquote><tt><font size=3>tar xfz textpressopackage-2.0.0.tgz</font></tt></blockquote>");
+$text .= $query->li("Start a web browser and open the document" .
+		    "<blockquote><tt><font size=3>textpressopackage-2.0.0/documentation/index.html</font></tt></blockquote>" .
+		    "or go to the " .
+		    $query->a({href=>"http://www.textpresso.org/celegans/misc/Textpresso-2.0-documentation/", 
+			       target=>"_blank"}, "online documentation") . ".");
+$text .= $query->li("Installation instructions, documentation and licence can be found in the document.");
+$text .= $query->end_ul;
+$text .= $query->hr;
+$subtable2->addtablerow($text);
+print $subtable2->maketable($query, tablestyle => 'borderless', width => "60%");
+print $query->br;
+
+PrintBottom($query);

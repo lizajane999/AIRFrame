@@ -1,0 +1,524 @@
+<!--            TEXTPRESSO EXPORTXML DTD            -->
+<!--            Arun Rangarajan,5/10/2007           -->
+<!ELEMENT textpresso_output (singleresult|allresults)>
+
+<!ELEMENT singleresult (annotation, textpresso_article)>
+
+<!ELEMENT allresults (annotation, textpresso_article+)>
+
+<!ELEMENT annotation (category_label+)>
+<!ELEMENT category_label (#PCDATA)>
+<!ATTLIST category_label name CDATA #REQUIRED>
+
+<!ELEMENT textpresso_article (bibliography, matching_sentences)>
+
+<!ELEMENT bibliography (literature, doc_id, year, type, title, journal, volume, page, author*, accession, abstract)>
+<!ELEMENT literature	(#PCDATA)>
+<!ELEMENT doc_id	(#PCDATA)>
+<!ELEMENT year (#PCDATA)>
+<!ELEMENT type (#PCDATA)>
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT journal (#PCDATA)>
+<!ELEMENT volume (#PCDATA)>
+<!ELEMENT page (#PCDATA)>
+<!ELEMENT author (#PCDATA)>
+<!ELEMENT accession (#PCDATA)>
+<!ELEMENT abstract (#PCDATA)>
+
+<!ELEMENT matching_sentences ((field_abstract|field_author|field_body|field_title|field_year)+)>
+<!ELEMENT field_abstract (sentence+)>
+<!ELEMENT field_author (sentence+)>
+<!ELEMENT field_body (sentence+)>
+<!ELEMENT field_title (sentence+)>
+<!ELEMENT field_year (sentence+)>
+<!ELEMENT sentence (content, (abnormality | action | aminoacid | anatomy | artificialsatellite | association | asteroid | auxiliary | bacteria | bioentityfeature | biologicalprocess | bracket | carbohydrate | celestialentity | cell | characterization | chemicalelement | chemicalreaction | cloud | comet | comparison | composition | conjunction | consort | constellation | coordinates | decomposition | defect | density | descriptor | determiner | dhratio | discharge | discipline | earthatmosphere | effect | electricalproperties | electromagneticproperties | electromagradiation | electron | elementaryexicitations | elementaryparticle | emission | environment | feature | galaxy | gases | growth | hydrocarbon | hydrogencompound | interstellarmatter | interstellarmolecule | involvement | jupitersatellite | life | localization | magneticallytrappedparticle | marssatellite | measure | meteorite | meteoroid | mixture | modality | nebula | negation | neptunesatellite | nuclei | nucleicacid | number | observatory | organiccompound | pah | panh | particle | phase | phasetransformation | planet | plasma | plutosatellite | preposition | pronoun | property | protein | punctuation | purpose | radiosource | rock | saturnsatellite | shape | soil | spatialreln | star | telescope | timereln | uranussatellite | volatile | water )*)>
+<!ELEMENT content (#PCDATA)>
+<!ELEMENT abnormality (#PCDATA)>
+<!ELEMENT action (#PCDATA)>
+<!ELEMENT aminoacid (#PCDATA)>
+<!ELEMENT anatomy (#PCDATA)>
+<!ELEMENT artificialsatellite (#PCDATA)>
+<!ELEMENT association (#PCDATA)>
+<!ELEMENT asteroid (#PCDATA)>
+<!ELEMENT auxiliary (#PCDATA)>
+<!ELEMENT bacteria (#PCDATA)>
+<!ELEMENT bioentityfeature (#PCDATA)>
+<!ELEMENT biologicalprocess (#PCDATA)>
+<!ELEMENT bracket (#PCDATA)>
+<!ELEMENT carbohydrate (#PCDATA)>
+<!ELEMENT celestialentity (#PCDATA)>
+<!ELEMENT cell (#PCDATA)>
+<!ELEMENT characterization (#PCDATA)>
+<!ELEMENT chemicalelement (#PCDATA)>
+<!ELEMENT chemicalreaction (#PCDATA)>
+<!ELEMENT cloud (#PCDATA)>
+<!ELEMENT comet (#PCDATA)>
+<!ELEMENT comparison (#PCDATA)>
+<!ELEMENT composition (#PCDATA)>
+<!ELEMENT conjunction (#PCDATA)>
+<!ELEMENT consort (#PCDATA)>
+<!ELEMENT constellation (#PCDATA)>
+<!ELEMENT coordinates (#PCDATA)>
+<!ELEMENT decomposition (#PCDATA)>
+<!ELEMENT defect (#PCDATA)>
+<!ELEMENT density (#PCDATA)>
+<!ELEMENT descriptor (#PCDATA)>
+<!ELEMENT determiner (#PCDATA)>
+<!ELEMENT dhratio (#PCDATA)>
+<!ELEMENT discharge (#PCDATA)>
+<!ELEMENT discipline (#PCDATA)>
+<!ELEMENT earthatmosphere (#PCDATA)>
+<!ELEMENT effect (#PCDATA)>
+<!ELEMENT electricalproperties (#PCDATA)>
+<!ELEMENT electromagneticproperties (#PCDATA)>
+<!ELEMENT electromagradiation (#PCDATA)>
+<!ELEMENT electron (#PCDATA)>
+<!ELEMENT elementaryexicitations (#PCDATA)>
+<!ELEMENT elementaryparticle (#PCDATA)>
+<!ELEMENT emission (#PCDATA)>
+<!ELEMENT environment (#PCDATA)>
+<!ELEMENT feature (#PCDATA)>
+<!ELEMENT galaxy (#PCDATA)>
+<!ELEMENT gases (#PCDATA)>
+<!ELEMENT growth (#PCDATA)>
+<!ELEMENT hydrocarbon (#PCDATA)>
+<!ELEMENT hydrogencompound (#PCDATA)>
+<!ELEMENT interstellarmatter (#PCDATA)>
+<!ELEMENT interstellarmolecule (#PCDATA)>
+<!ELEMENT involvement (#PCDATA)>
+<!ELEMENT jupitersatellite (#PCDATA)>
+<!ELEMENT life (#PCDATA)>
+<!ELEMENT localization (#PCDATA)>
+<!ELEMENT magneticallytrappedparticle (#PCDATA)>
+<!ELEMENT marssatellite (#PCDATA)>
+<!ELEMENT measure (#PCDATA)>
+<!ELEMENT meteorite (#PCDATA)>
+<!ELEMENT meteoroid (#PCDATA)>
+<!ELEMENT mixture (#PCDATA)>
+<!ELEMENT modality (#PCDATA)>
+<!ELEMENT nebula (#PCDATA)>
+<!ELEMENT negation (#PCDATA)>
+<!ELEMENT neptunesatellite (#PCDATA)>
+<!ELEMENT nuclei (#PCDATA)>
+<!ELEMENT nucleicacid (#PCDATA)>
+<!ELEMENT number (#PCDATA)>
+<!ELEMENT observatory (#PCDATA)>
+<!ELEMENT organiccompound (#PCDATA)>
+<!ELEMENT pah (#PCDATA)>
+<!ELEMENT panh (#PCDATA)>
+<!ELEMENT particle (#PCDATA)>
+<!ELEMENT phase (#PCDATA)>
+<!ELEMENT phasetransformation (#PCDATA)>
+<!ELEMENT planet (#PCDATA)>
+<!ELEMENT plasma (#PCDATA)>
+<!ELEMENT plutosatellite (#PCDATA)>
+<!ELEMENT preposition (#PCDATA)>
+<!ELEMENT pronoun (#PCDATA)>
+<!ELEMENT property (#PCDATA)>
+<!ELEMENT protein (#PCDATA)>
+<!ELEMENT punctuation (#PCDATA)>
+<!ELEMENT purpose (#PCDATA)>
+<!ELEMENT radiosource (#PCDATA)>
+<!ELEMENT rock (#PCDATA)>
+<!ELEMENT saturnsatellite (#PCDATA)>
+<!ELEMENT shape (#PCDATA)>
+<!ELEMENT soil (#PCDATA)>
+<!ELEMENT spatialreln (#PCDATA)>
+<!ELEMENT star (#PCDATA)>
+<!ELEMENT telescope (#PCDATA)>
+<!ELEMENT timereln (#PCDATA)>
+<!ELEMENT uranussatellite (#PCDATA)>
+<!ELEMENT volatile (#PCDATA)>
+<!ELEMENT water (#PCDATA)>
+
+<!ATTLIST abnormality start_pos CDATA #REQUIRED
+					  end_pos CDATA #REQUIRED
+					  matched_entity CDATA #IMPLIED
+>
+<!ATTLIST action start_pos CDATA #REQUIRED
+					  end_pos CDATA #REQUIRED
+					  matched_entity CDATA #IMPLIED
+>
+<!ATTLIST aminoacid start_pos CDATA #REQUIRED
+					  end_pos CDATA #REQUIRED
+					  matched_entity CDATA #IMPLIED
+>
+<!ATTLIST anatomy start_pos CDATA #REQUIRED
+					  end_pos CDATA #REQUIRED
+					  matched_entity CDATA #IMPLIED
+>
+<!ATTLIST artificialsatellite start_pos CDATA #REQUIRED
+					  end_pos CDATA #REQUIRED
+					  matched_entity CDATA #IMPLIED
+>
+<!ATTLIST association start_pos CDATA #REQUIRED
+					 end_pos CDATA #REQUIRED
+					 matched_entity CDATA #IMPLIED
+>
+<!ATTLIST asteroid start_pos CDATA #REQUIRED
+					 end_pos CDATA #REQUIRED
+					 matched_entity CDATA #IMPLIED
+>
+<!ATTLIST auxiliary start_pos CDATA #REQUIRED
+					 end_pos CDATA #REQUIRED
+					 matched_entity CDATA #IMPLIED
+>
+<!ATTLIST bacteria start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST bioentityfeature start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST biologicalprocess start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST bracket start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST carbohydrate start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST celestialentity start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST cell start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST characterization start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST chemicalelement start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST chemicalreaction start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST cloud start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST comet start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST comparison start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST composition start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST conjunction start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST consort start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST constellation start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST coordinates start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST decomposition start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST defect start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST density start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST descriptor start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST determiner start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST dhratio start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST discharge start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST discipline start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST earthatmosphere start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST effect start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST electricalproperties start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST electromagneticproperties start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST electromagradiation start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST electron start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST elementaryexicitations start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST elementaryparticle start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST emission start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST environment start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST feature start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST galaxy start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST gases start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST growth start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST hydrocarbon start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST hydrogencompound start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST interstellarmatter start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST interstellarmolecule start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST involvement start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST jupitersatellite start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST life start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST localization start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST magneticallytrappedparticle start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST marssatellite start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST measure start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST meteorite start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST meteoroid start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST mixture start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST modality start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST nebula start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST negation start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST neptunesatellite start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST nuclei start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST nucleicacid start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST number start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST observatory start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST organiccompound start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST pah start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST panh start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST particle start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST phase start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST phasetransformation start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST planet start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST plasma start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST plutosatellite start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST preposition start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST pronoun start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST property start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST protein start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST punctuation start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST purpose start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST radiosource start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST rock start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST saturnsatellite start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST shape start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST soil start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST spatialreln start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST star start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST telescope start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST timereln start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST uranussatellite start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST volatile start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST water start_pos CDATA #REQUIRED
+					end_pos CDATA #REQUIRED
+					matched_entity CDATA #IMPLIED
+>
+<!ATTLIST sentence id CDATA #REQUIRED
+		    subscore CDATA #REQUIRED
+>

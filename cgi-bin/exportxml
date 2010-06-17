@@ -1,0 +1,98 @@
+#!/usr/bin/perl
+
+# CGI script provides search page of Textpresso system
+#
+# Copyright (c) Arun Rangarajan; adapted from exportendnote by Hans-Michael Muller 2005.
+
+use strict;
+
+# Import the library path TEXTPRESSO_LIB from TextpressoLibrary.pm
+use TextpressoLibrary;
+
+use lib TEXTPRESSO_LIB;
+
+use CGI;
+use TextpressoDatabaseGlobals;
+use TextpressoDatabaseCategories;
+use TextpressoGeneralGlobals;
+use TextpressoDatabaseSearch;
+use TextpressoDisplayTasks;
+use TextpressoDisplayGlobals;
+
+# globals
+my $query = new CGI;
+my $mode = $query->param('mode');
+my $tmpfile = $query->param('tmpfile');
+my $keywordfilename = DB_TMP . "/tmp/" . $query->param('keywordfilename');
+my $categoryfilename = DB_TMP . "/tmp/" . $query->param('categoryfilename');
+
+# print header
+print $query->header(-type => "application/octet-stream", -attachment => "$tmpfile.txt");
+
+# read in the results from tmpfile
+my $filename = DB_TMP . "/tmp/" . $tmpfile;
+my %results = readresults($filename);
+
+my $xml_output = "";
+$xml_output .= "<\?xml version\=\"1.0\" standalone\=\"no\"\?>\n";
+my $dtdaddress = HTML_ROOT . HTML_LIT_PATH . "xml_dtd/export_xml.dtd";
+$xml_output .= "<!DOCTYPE textpresso_output SYSTEM \"$dtdaddress\">\n";
+
+if ($mode eq 'singleentry') 
+{
+    my $wbid = $query->param('wbid');
+    foreach my $lit (keys %results)
+    {
+	$xml_output .= "<textpresso_output>\n";
+	$xml_output .= " <singleresult>\n";
+	$xml_output .= annotations_in_xml();
+	$xml_output .= "\n";
+	$xml_output .= "  <textpresso_article>\n";
+	$xml_output .= single_biblio_entry_in_xml($lit, $wbid);
+	$xml_output .= "\n";
+	$xml_output .= matching_sentences_in_xml(\%results, $lit, $wbid, $keywordfilename, $categoryfilename);
+	$xml_output .= "\n";
+	$xml_output .= "  <\/textpresso_article>\n";
+	$xml_output .= " <\/singleresult>\n";
+	$xml_output .= "<\/textpresso_output>\n";
+    }
+}
+elsif ($mode eq 'allentries') 
+{
+    $xml_output .= "<textpresso_output>\n";
+    $xml_output .= " <allresults>\n";
+    $xml_output .= annotations_in_xml();
+    $xml_output .= "\n";
+    foreach my $lit (keys %results)
+    {
+	foreach my $wbid (keys % {$results{$lit}})
+	{
+	    $xml_output .= "  <textpresso_article>\n";
+	    $xml_output .= single_biblio_entry_in_xml($lit, $wbid);
+	    $xml_output .= "\n";
+	    $xml_output .= matching_sentences_in_xml(\%results, $lit, $wbid, $keywordfilename, $categoryfilename);
+	    $xml_output .= "\n";
+	    $xml_output .= "  <\/textpresso_article>\n\n";
+	}
+    }
+    $xml_output .= " <\/allresults>\n";
+    $xml_output .= "<\/textpresso_output>\n";
+}
+
+# validate the XML file with Richard Tobin's XML well-formedness checker and validator
+my $xml_file = DB_TMP . "/tmp/" . "\/xmlfile";
+open (OUT, ">$xml_file");
+print OUT $xml_output;
+
+my @args = ("./rxp", "-Vs", "$xml_file");
+my $x = system (@args);
+if ($x != 0)
+{
+    $xml_output .= "<!-- This XML file failed validation test. exit status of RXP XML parser = $x. If you are concerned, please contact the Textpresso group. -->\n";
+}
+else
+{
+    $xml_output .= "<!-- This XML file passed the validation test. -->\n";
+}
+
+print $xml_output;

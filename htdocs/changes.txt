@@ -1,0 +1,10 @@
+LIST OF CHANGES TO TEXTPRESSO
+										changed TextpressoSystemTasks.pm 
+** AddToAnnotationInOneProcess and AnnotatateAndPrintLine subroutines to create XML file
+
+changed /dataprocessing/TextpressoSystemGlobals.pm
+** added xml directory to SY_SUBROOTS
+
+changed /database/astrobiology/Procedures/scripts/ProcessSourceFiles.pl for adding XML
+
+
